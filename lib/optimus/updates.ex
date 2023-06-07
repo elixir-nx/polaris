@@ -1,4 +1,4 @@
-defmodule Optex.Updates do
+defmodule Optimus.Updates do
   @moduledoc ~S"""
   Parameter update methods.
 
@@ -18,16 +18,16 @@ defmodule Optex.Updates do
 
   Update methods are just combinators that can be arbitrarily
   composed to create complex optimizers. For example, the Adam
-  optimizer in `Optex.Optimizers` is implemented as:
+  optimizer in `Optimus.Optimizers` is implemented as:
 
       def adam(learning_rate, opts \\ []) do
         opts
-        |> Optex.Updates.scale_by_adam()
-        |> Optex.Updates.scale(-learning_rate)
+        |> Optimus.Updates.scale_by_adam()
+        |> Optimus.Updates.scale(-learning_rate)
       end
 
   Updates are maps of updates, often associated with parameters of
-  the same names. Using `Optex.Updates.apply_updates/3` will merge updates
+  the same names. Using `Optimus.Updates.apply_updates/3` will merge updates
   and parameters by adding associated parameters and updates, and
   ensuring any given model state is preserved.
 
@@ -39,7 +39,7 @@ defmodule Optex.Updates do
 
   `stateless/2` represents a stateless update:
 
-      def scale(combinator \\ Optex.Updates.identity(), step_size) do
+      def scale(combinator \\ Optimus.Updates.identity(), step_size) do
         stateless(combinator, &apply_scale(&1, &2, step_size))
       end
 
@@ -48,13 +48,13 @@ defmodule Optex.Updates do
       end
 
   Notice how the function given to `stateless/2` is defined within `defn`.
-  This is what allows the anonymous functions returned by `Optex.Updates`
+  This is what allows the anonymous functions returned by `Optimus.Updates`
   to be used inside `defn`.
 
   `stateful/3` represents a stateful update and follows the same pattern:
 
       def my_stateful_update(updates) do
-        Optex.Updates.stateful(updates, &init_my_update/1, &apply_my_update/2)
+        Optimus.Updates.stateful(updates, &init_my_update/1, &apply_my_update/2)
       end
 
       defnp init_my_update(params) do
@@ -79,7 +79,7 @@ defmodule Optex.Updates do
       }
   """
   import Nx.Defn
-  import Optex.Shared
+  import Optimus.Shared
 
   @doc ~S"""
   Scales input by a fixed step size.
@@ -96,7 +96,7 @@ defmodule Optex.Updates do
 
   @doc ~S"""
   Scales input by a tunable learning rate which can be
-  manipulated by external APIs such as Optex's Loop API.
+  manipulated by external APIs such as Optimus's Loop API.
 
   $$f(x_i) = \alpha x_i$$
   """
@@ -921,14 +921,14 @@ defmodule Optex.Updates do
   without having to reimplement them. For example, you can implement
   gradient centralization:
 
-      import Optex.Updates
+      import Optimus.Updates
 
-      Optex.Updates.compose(Optex.Updates.centralize(), Optex.Optimizers.rmsprop())
+      Optimus.Updates.compose(Optimus.Updates.centralize(), Optimus.Optimizers.rmsprop())
 
   This is equivalent to:
 
-      Optex.Updates.centralize()
-      |> Optex.Updates.scale_by_rms()
+      Optimus.Updates.centralize()
+      |> Optimus.Updates.scale_by_rms()
   """
   def compose({init_fn1, apply_fn1}, {init_fn2, apply_fn2}) do
     init_fn = fn params ->

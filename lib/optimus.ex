@@ -1,4 +1,4 @@
-defmodule Optex do
+defmodule Optimus do
   @moduledoc """
   Collection of common optimizers and optimization utilities.
   """

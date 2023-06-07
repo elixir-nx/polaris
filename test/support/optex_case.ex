@@ -1,10 +1,10 @@
-defmodule Optex.Case do
+defmodule Optimus.Case do
   use ExUnit.CaseTemplate
 
   using do
     quote do
       import Nx.Defn
-      import Optex.Case
+      import Optimus.Case
     end
   end
 
@@ -143,7 +143,7 @@ defmodule Optex.Case do
       {params, opt_state} = state
       gradients = Nx.Defn.grad(params, loss)
       {updates, new_state} = update_fn.(gradients, opt_state, params)
-      {Optex.Updates.apply_updates(updates, params), new_state}
+      {Optimus.Updates.apply_updates(updates, params), new_state}
     end
 
     {params, _} =

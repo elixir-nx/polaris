@@ -1,9 +1,9 @@
-defmodule Optex.Optimizers do
+defmodule Optimus.Optimizers do
   @moduledoc """
   Implementations of common gradient-based optimization algorithms.
 
   All of the methods in this module are written in terms of
-  the update methods defined in `Optex.Updates`. Optex treats
+  the update methods defined in `Optimus.Updates`. Optimus treats
   optimizers as the tuple:
 
       {init_fn, update_fn}
@@ -14,7 +14,7 @@ defmodule Optex.Optimizers do
   gradients, optimizer state, and current model parameters and
   returns updated optimizer state and gradients.
 
-  Custom optimizers are often created via the `Optex.Updates` API.
+  Custom optimizers are often created via the `Optimus.Updates` API.
 
   ## Example
 
@@ -33,12 +33,12 @@ defmodule Optex.Optimizers do
         defn update(params, optimizer_state, inputs, targets, update_fn) do
           {loss, gradient} = value_and_grad(params, &objective(&1, inputs, targets))
           {scaled_updates, new_optimizer_state} = update_fn.(gradient, optimizer_state, params)
-          {Optex.Updates.apply_updates(params, scaled_updates), new_optimizer_state, loss}
+          {Optimus.Updates.apply_updates(params, scaled_updates), new_optimizer_state, loss}
         end
       end
 
       {model_params, _key} = Nx.Random.uniform(key, shape: {784, 10})
-      {init_fn, update_fn} = Optex.Optimizers.adam(0.005)
+      {init_fn, update_fn} = Optimus.Optimizers.adam(0.005)
 
       optimizer_state =
         Learning.init(params, init_fn)
@@ -49,11 +49,11 @@ defmodule Optex.Optimizers do
   For a simpler approach, you can also use optimizers with the training API:
 
         model
-        |> Optex.Loop.trainer(:categorical_cross_entropy, Optex.Optimizers.adam(0.005))
-        |> Optex.Loop.run(data, epochs: 10, compiler: EXLA)
+        |> Optimus.Loop.trainer(:categorical_cross_entropy, Optimus.Optimizers.adam(0.005))
+        |> Optimus.Loop.run(data, epochs: 10, compiler: EXLA)
 
   """
-  alias Optex.Updates
+  alias Optimus.Updates
 
   @doc """
   Adabelief optimizer.

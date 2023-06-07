@@ -1,4 +1,4 @@
-defmodule Optex.Shared do
+defmodule Optimus.Shared do
   @moduledoc false
 
   # Collection of private helper functions and

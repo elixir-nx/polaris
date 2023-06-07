@@ -1,4 +1,4 @@
-defmodule Optex.Schedules do
+defmodule Optimus.Schedules do
   @moduledoc """
   Parameter Schedules.
 
