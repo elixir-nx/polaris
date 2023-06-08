@@ -46,12 +46,6 @@ defmodule Polaris.Optimizers do
       {new_params, new_optimizer_state, loss} =
         Learning.update(params, optimizer_state, inputs, targets, update_fn)
 
-  For a simpler approach, you can also use optimizers with the training API:
-
-        model
-        |> Polaris.Loop.trainer(:categorical_cross_entropy, Polaris.Optimizers.adam(0.005))
-        |> Polaris.Loop.run(data, epochs: 10, compiler: EXLA)
-
   """
   alias Polaris.Updates
 
