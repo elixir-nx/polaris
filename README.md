@@ -1,6 +1,20 @@
 # Optimus
 
-Collection of shared utilities related to optimization.
+Numerical definitions for creating and using first-order optimization techniques based on the [Optax](https://github.com/deepmind/optax) library.
+
+Here is a non-exhaustive list of supported optimizers:
+
+* Adabelief
+* Adagrad
+* Adam
+* Adamw
+* Fromage
+* Lamb
+* Noisy SGD
+* Radam
+* RMSProp
+* SGD
+* Yogi
 
 ## Installation
 
