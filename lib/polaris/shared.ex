@@ -1,4 +1,4 @@
-defmodule Optimus.Shared do
+defmodule Polaris.Shared do
   @moduledoc false
 
   # Collection of private helper functions and

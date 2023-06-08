@@ -1,4 +1,4 @@
-defmodule Optimus.Schedules do
+defmodule Polaris.Schedules do
   @moduledoc """
   Parameter Schedules.
 

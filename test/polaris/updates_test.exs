@@ -1,8 +1,8 @@
-defmodule Optimus.UpdatesTest do
-  use Optimus.Case
-  doctest Optimus.Updates
+defmodule Polaris.UpdatesTest do
+  use Polaris.Case
+  doctest Polaris.Updates
 
-  import Optimus.Updates
+  import Polaris.Updates
 
   describe "add_decayed_weights" do
     test "constructs a stateless transformation" do
@@ -1527,7 +1527,7 @@ defmodule Optimus.UpdatesTest do
   describe "scale_by_schedule" do
     test "constructs a stateful transformation" do
       params = %{a: Nx.tensor([1.0, 2.0, 3.0])}
-      assert {init_fn, update_fn} = scale_by_schedule(Optimus.Schedules.polynomial_decay(1.0e-2))
+      assert {init_fn, update_fn} = scale_by_schedule(Polaris.Schedules.polynomial_decay(1.0e-2))
       assert is_function(init_fn, 1)
       assert is_function(update_fn, 3)
       assert {schedule_state} = init_fn.(params)
@@ -1539,8 +1539,8 @@ defmodule Optimus.UpdatesTest do
       params = %{a: Nx.tensor([1.0, 2.0, 3.0])}
 
       assert {init_fn, update_fn} =
-               scale_by_schedule(Optimus.Schedules.polynomial_decay(1.0e-2))
-               |> scale_by_schedule(Optimus.Schedules.polynomial_decay(1.0e-2))
+               scale_by_schedule(Polaris.Schedules.polynomial_decay(1.0e-2))
+               |> scale_by_schedule(Polaris.Schedules.polynomial_decay(1.0e-2))
 
       assert is_function(init_fn, 1)
       assert is_function(update_fn, 3)
@@ -1555,7 +1555,7 @@ defmodule Optimus.UpdatesTest do
       params = %{a: Nx.tensor([1.0, 2.0, 3.0])}
 
       assert {init_fn, update_fn} =
-               scale_by_schedule(Optimus.Schedules.polynomial_decay(1.0e-2)) |> scale(1.0e-2)
+               scale_by_schedule(Polaris.Schedules.polynomial_decay(1.0e-2)) |> scale(1.0e-2)
 
       assert is_function(init_fn, 1)
       assert is_function(update_fn, 3)
@@ -1565,7 +1565,7 @@ defmodule Optimus.UpdatesTest do
     end
 
     test "matches optax with simple container" do
-      assert {init_fn, update_fn} = scale_by_schedule(Optimus.Schedules.polynomial_decay(1.0e-2))
+      assert {init_fn, update_fn} = scale_by_schedule(Polaris.Schedules.polynomial_decay(1.0e-2))
       params = %{a: Nx.tensor([0.77425031, 0.65418105, 0.86150202])}
       updates = %{a: Nx.tensor([0.56082198, 0.94549107, 0.54412826])}
       state = init_fn.(params)
@@ -1581,7 +1581,7 @@ defmodule Optimus.UpdatesTest do
     end
 
     test "matches optax with nested container" do
-      assert {init_fn, update_fn} = scale_by_schedule(Optimus.Schedules.polynomial_decay(1.0e-2))
+      assert {init_fn, update_fn} = scale_by_schedule(Polaris.Schedules.polynomial_decay(1.0e-2))
 
       params = %{
         a: %{
@@ -1612,7 +1612,7 @@ defmodule Optimus.UpdatesTest do
     end
 
     test "supports generic container" do
-      assert {init_fn, update_fn} = scale_by_schedule(Optimus.Schedules.polynomial_decay(1.0e-2))
+      assert {init_fn, update_fn} = scale_by_schedule(Polaris.Schedules.polynomial_decay(1.0e-2))
 
       params = {
         {

@@ -1,4 +1,4 @@
-# Optimus
+# Polaris
 
 Numerical definitions for creating and using first-order optimization techniques based on the [Optax](https://github.com/deepmind/optax) library.
 
@@ -19,23 +19,23 @@ Here is a non-exhaustive list of supported optimizers:
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `optimus` to your list of dependencies in `mix.exs`:
+by adding `polaris` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:optimus, "~> 0.1"}
+    {:polaris, "~> 0.1"}
   ]
 end
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/optimus>.
+be found at <https://hexdocs.pm/polaris>.
 
 ## License
 
-Copyright (c) 2021 Sean Moriarity
+Copyright (c) 2023 Sean Moriarity
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 

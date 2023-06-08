@@ -1,4 +1,4 @@
-defmodule Optimus.Updates do
+defmodule Polaris.Updates do
   @moduledoc ~S"""
   Parameter update methods.
 
@@ -18,16 +18,16 @@ defmodule Optimus.Updates do
 
   Update methods are just combinators that can be arbitrarily
   composed to create complex optimizers. For example, the Adam
-  optimizer in `Optimus.Optimizers` is implemented as:
+  optimizer in `Polaris.Optimizers` is implemented as:
 
       def adam(learning_rate, opts \\ []) do
         opts
-        |> Optimus.Updates.scale_by_adam()
-        |> Optimus.Updates.scale(-learning_rate)
+        |> Polaris.Updates.scale_by_adam()
+        |> Polaris.Updates.scale(-learning_rate)
       end
 
   Updates are maps of updates, often associated with parameters of
-  the same names. Using `Optimus.Updates.apply_updates/3` will merge updates
+  the same names. Using `Polaris.Updates.apply_updates/3` will merge updates
   and parameters by adding associated parameters and updates, and
   ensuring any given model state is preserved.
 
@@ -39,7 +39,7 @@ defmodule Optimus.Updates do
 
   `stateless/2` represents a stateless update:
 
-      def scale(combinator \\ Optimus.Updates.identity(), step_size) do
+      def scale(combinator \\ Polaris.Updates.identity(), step_size) do
         stateless(combinator, &apply_scale(&1, &2, step_size))
       end
 
@@ -48,13 +48,13 @@ defmodule Optimus.Updates do
       end
 
   Notice how the function given to `stateless/2` is defined within `defn`.
-  This is what allows the anonymous functions returned by `Optimus.Updates`
+  This is what allows the anonymous functions returned by `Polaris.Updates`
   to be used inside `defn`.
 
   `stateful/3` represents a stateful update and follows the same pattern:
 
       def my_stateful_update(updates) do
-        Optimus.Updates.stateful(updates, &init_my_update/1, &apply_my_update/2)
+        Polaris.Updates.stateful(updates, &init_my_update/1, &apply_my_update/2)
       end
 
       defnp init_my_update(params) do
@@ -79,7 +79,7 @@ defmodule Optimus.Updates do
       }
   """
   import Nx.Defn
-  import Optimus.Shared
+  import Polaris.Shared
 
   @doc ~S"""
   Scales input by a fixed step size.
@@ -96,7 +96,7 @@ defmodule Optimus.Updates do
 
   @doc ~S"""
   Scales input by a tunable learning rate which can be
-  manipulated by external APIs such as Optimus's Loop API.
+  manipulated by external APIs such as Polaris's Loop API.
 
   $$f(x_i) = \alpha x_i$$
   """
@@ -921,14 +921,14 @@ defmodule Optimus.Updates do
   without having to reimplement them. For example, you can implement
   gradient centralization:
 
-      import Optimus.Updates
+      import Polaris.Updates
 
-      Optimus.Updates.compose(Optimus.Updates.centralize(), Optimus.Optimizers.rmsprop())
+      Polaris.Updates.compose(Polaris.Updates.centralize(), Polaris.Optimizers.rmsprop())
 
   This is equivalent to:
 
-      Optimus.Updates.centralize()
-      |> Optimus.Updates.scale_by_rms()
+      Polaris.Updates.centralize()
+      |> Polaris.Updates.scale_by_rms()
   """
   def compose({init_fn1, apply_fn1}, {init_fn2, apply_fn2}) do
     init_fn = fn params ->
