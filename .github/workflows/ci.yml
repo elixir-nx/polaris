@@ -1,0 +1,41 @@
+name: Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  main:
+    name: ubuntu-latest (${{ matrix.elixir }}, ${{ matrix.otp }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        elixir: ["1.13.4", "1.14.2"]
+        otp: ["25.2"]
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v3
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ matrix.otp }}
+          elixir-version: ${{ matrix.elixir }}
+      - name: Retrieve dependencies cache
+        env:
+          cache-name: cache-mix-deps
+        uses: actions/cache@v3
+        id: mix-cache # id to use in retrieve action
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-Elixir-v${{ matrix.elixir }}-OTP-${{ matrix.otp }}-${{ hashFiles('**/mix.lock') }}
+      - name: Install dependencies
+        if: ${{ steps.mix-cache.outputs.cache-hit != 'true' }}
+        run: mix deps.get
+      - name: Compile and check warnings
+        run: mix compile --skip-optional-deps --warnings-as-errors
+      - name: Check formatting
+        run: mix format --check-formatted
+      - name: Run tests
+        run: mix test
