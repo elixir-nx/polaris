@@ -54,6 +54,7 @@ defmodule Polaris.Optimizers do
 
   ## Options
 
+    * `:learning_rate` - the learning rate for the optimizer. Defaults to `1.0e-3`
     * `:b1` - first moment decay. Defaults to `0.9`
     * `:b2` - second moment decay. Defaults to `0.999`
     * `:eps` - numerical stability term. Defaults to `0.0`
@@ -63,7 +64,9 @@ defmodule Polaris.Optimizers do
 
     * [AdaBelief Optimizer: Adapting Stepsizes by the Belief in Observed Gradients](https://arxiv.org/abs/2010.07468)
   """
-  def adabelief(learning_rate \\ 1.0e-3, opts \\ []) do
+  def adabelief(opts \\ []) do
+    {learning_rate, opts} = Keyword.pop(opts, :learning_rate, 1.0e-3)
+
     Updates.scale_by_belief(opts)
     |> scale_by_learning_rate(learning_rate)
   end
@@ -73,13 +76,16 @@ defmodule Polaris.Optimizers do
 
   ## Options
 
+    * `:learning_rate` - the learning rate for the optimizer. Defaults to `1.0e-3`
     * `:eps` - numerical stability term. Defaults to `1.0e-7`
 
   ## References
 
     * [Adaptive Subgradient Methods for Online Learning and Stochastic Optimization](https://www.jmlr.org/papers/volume12/duchi11a/duchi11a.pdf)
   """
-  def adagrad(learning_rate \\ 1.0e-3, opts \\ []) do
+  def adagrad(opts \\ []) do
+    {learning_rate, opts} = Keyword.pop(opts, :learning_rate, 1.0e-3)
+
     Updates.scale_by_rss(opts)
     |> scale_by_learning_rate(learning_rate)
   end
@@ -89,6 +95,7 @@ defmodule Polaris.Optimizers do
 
   ## Options
 
+    * `:learning_rate` - the learning rate for the optimizer. Defaults to `1.0e-3`
     * `:b1` - first moment decay. Defaults to `0.9`
     * `:b2` - second moment decay. Defaults to `0.999`
     * `:eps` - numerical stability term. Defaults to `1.0e-8`
@@ -98,7 +105,9 @@ defmodule Polaris.Optimizers do
 
     * [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980)
   """
-  def adam(learning_rate \\ 1.0e-3, opts \\ []) do
+  def adam(opts \\ []) do
+    {learning_rate, opts} = Keyword.pop(opts, :learning_rate, 1.0e-3)
+
     Updates.scale_by_adam(opts)
     |> scale_by_learning_rate(learning_rate)
   end
@@ -108,13 +117,15 @@ defmodule Polaris.Optimizers do
 
   ## Options
 
+    * `:learning_rate` - the learning rate for the optimizer. Defaults to `1.0e-3`
     * `:b1` - first moment decay. Defaults to `0.9`
     * `:b2` - second moment decay. Defaults to `0.999`
     * `:eps` - numerical stability term. Defaults to `1.0e-8`
     * `:eps_root` - numerical stability term. Defaults to `0.0`
     * `:decay` - weight decay. Defaults to `0.0`
   """
-  def adamw(learning_rate \\ 1.0e-3, opts \\ []) do
+  def adamw(opts \\ []) do
+    {learning_rate, opts} = Keyword.pop(opts, :learning_rate, 1.0e-3)
     {decay, opts} = Keyword.pop(opts, :decay, 0.0)
 
     Updates.scale_by_adam(opts)
@@ -127,6 +138,7 @@ defmodule Polaris.Optimizers do
 
   ## Options
 
+    * `:learning_rate` - the learning rate for the optimizer. Defaults to `1.0e-2`
     * `:b1` - first moment decay. Defaults to `0.9`
     * `:b2` - second moment decay. Defaults to `0.999`
     * `:eps` - numerical stability term. Defaults to `1.0e-8`
@@ -138,7 +150,8 @@ defmodule Polaris.Optimizers do
 
     * [Large Batch Optimization for Deep Learning: Training BERT in 76 minutes](https://arxiv.org/abs/1904.00962)
   """
-  def lamb(learning_rate \\ 1.0e-2, opts \\ []) do
+  def lamb(opts \\ []) do
+    {learning_rate, opts} = Keyword.pop(opts, :learning_rate, 1.0e-2)
     {decay, opts} = Keyword.pop(opts, :decay, 0.0)
     {min_norm, opts} = Keyword.pop(opts, :min_norm, 0.0)
 
@@ -153,10 +166,13 @@ defmodule Polaris.Optimizers do
 
   ## Options
 
+    * `:learning_rate` - the learning rate for the optimizer. Defaults to `1.0e-2`
     * `:eta` - used to compute variance of noise distribution. Defaults to `0.1`
     * `:gamma` - used to compute variance of noise distribution. Defaults to `0.55`
   """
-  def noisy_sgd(learning_rate \\ 1.0e-2, opts \\ []) do
+  def noisy_sgd(opts \\ []) do
+    {learning_rate, opts} = Keyword.pop(opts, :learning_rate, 1.0e-2)
+
     scale_by_learning_rate(learning_rate)
     |> Updates.add_noise(opts)
   end
@@ -166,6 +182,7 @@ defmodule Polaris.Optimizers do
 
   ## Options
 
+    * `:learning_rate` - the learning rate for the optimizer. Defaults to `1.0e-3`
     * `:b1` - first moment decay. Defaults to `0.9`
     * `:b2` - second moment decay. Defaults to `0.999`
     * `:eps` - numerical stability term. Defaults to `1.0e-8`
@@ -176,7 +193,9 @@ defmodule Polaris.Optimizers do
 
     * [On the Variance of Adaptive Learning Rate and Beyond](https://arxiv.org/pdf/1908.03265.pdf)
   """
-  def radam(learning_rate \\ 1.0e-3, opts \\ []) do
+  def radam(opts \\ []) do
+    {learning_rate, opts} = Keyword.pop(opts, :learning_rate, 1.0e-3)
+
     Updates.scale_by_radam(opts)
     |> scale_by_learning_rate(learning_rate)
   end
@@ -186,6 +205,7 @@ defmodule Polaris.Optimizers do
 
   ## Options
 
+    * `:learning_rate` - the learning rate for the optimizer. Defaults to `1.0e-2`
     * `:centered` - whether to scale by centered root of EMA of squares. Defaults to `false`
     * `:momentum` - momentum term. If set, uses SGD with momentum and decay set
       to value of this term.
@@ -194,7 +214,8 @@ defmodule Polaris.Optimizers do
     * `:decay` - EMA decay rate. Defaults to `0.9`
     * `:eps` - numerical stability term. Defaults to `1.0e-8`
   """
-  def rmsprop(learning_rate \\ 1.0e-2, opts \\ []) do
+  def rmsprop(opts \\ []) do
+    {learning_rate, opts} = Keyword.pop(opts, :learning_rate, 1.0e-2)
     {centered, opts} = Keyword.pop(opts, :centered, false)
     {nesterov?, opts} = Keyword.pop(opts, :nesterov, false)
     {momentum, opts} = Keyword.pop(opts, :momentum, nil)
@@ -217,11 +238,13 @@ defmodule Polaris.Optimizers do
 
   ## Options
 
+    * `:learning_rate` - the learning rate for the optimizer. Defaults to `1.0e-2`
     * `:momentum` - momentum term. If set, uses SGD with momentum and decay set
       to value of this term.
     * `:nesterov` - whether or not to use nesterov momentum. Defaults to `false`
   """
-  def sgd(learning_rate \\ 1.0e-2, opts \\ []) do
+  def sgd(opts \\ []) do
+    {learning_rate, opts} = Keyword.pop(opts, :learning_rate, 1.0e-2)
     momentum = opts[:momentum]
     nesterov? = opts[:nesterov] || false
 
@@ -238,6 +261,7 @@ defmodule Polaris.Optimizers do
 
   ## Options
 
+    * `:learning_rate` - the learning rate for the optimizer. Defaults to `1.0e-2`
     * `:initial_accumulator_value` - initial value for first and second moment. Defaults to `0.0`
     * `:b1` - first moment decay. Defaults to `0.9`
     * `:b2` - second moment decay. Defaults to `0.999`
@@ -248,7 +272,9 @@ defmodule Polaris.Optimizers do
 
     * [Adaptive Methods for Nonconvex Optimization](https://papers.nips.cc/paper/2018/file/90365351ccc7437a1309dc64e4db32a3-Paper.pdf)
   """
-  def yogi(learning_rate \\ 1.0e-2, opts \\ []) do
+  def yogi(opts \\ []) do
+    {learning_rate, opts} = Keyword.pop(opts, :learning_rate, 1.0e-2)
+
     Updates.scale_by_yogi(opts)
     |> scale_by_learning_rate(learning_rate)
   end

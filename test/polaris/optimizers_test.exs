@@ -6,7 +6,7 @@ defmodule Polaris.OptimizersTest do
 
   describe "adabelief" do
     test "correctly optimizes simple loss with default options" do
-      optimizer = Polaris.Optimizers.adabelief(@learning_rate)
+      optimizer = Polaris.Optimizers.adabelief(learning_rate: @learning_rate)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -15,7 +15,7 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with custom options" do
-      optimizer = Polaris.Optimizers.adabelief(@learning_rate, b1: 0.95, b2: 0.99)
+      optimizer = Polaris.Optimizers.adabelief(learning_rate: @learning_rate, b1: 0.95, b2: 0.99)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -24,7 +24,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with schedule" do
-      optimizer = Polaris.Optimizers.adabelief(Polaris.Schedules.constant(@learning_rate))
+      optimizer =
+        Polaris.Optimizers.adabelief(learning_rate: Polaris.Schedules.constant(@learning_rate))
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -35,7 +37,7 @@ defmodule Polaris.OptimizersTest do
 
   describe "adagrad" do
     test "correctly optimizes simple loss with default options" do
-      optimizer = Polaris.Optimizers.adagrad(@learning_rate)
+      optimizer = Polaris.Optimizers.adagrad(learning_rate: @learning_rate)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -44,7 +46,7 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with custom options" do
-      optimizer = Polaris.Optimizers.adagrad(@learning_rate, eps: 1.0e-3)
+      optimizer = Polaris.Optimizers.adagrad(learning_rate: @learning_rate, eps: 1.0e-3)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -53,7 +55,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with schedule" do
-      optimizer = Polaris.Optimizers.adagrad(Polaris.Schedules.constant(@learning_rate))
+      optimizer =
+        Polaris.Optimizers.adagrad(learning_rate: Polaris.Schedules.constant(@learning_rate))
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -64,7 +68,7 @@ defmodule Polaris.OptimizersTest do
 
   describe "adam" do
     test "correctly optimizes simple loss with default options" do
-      optimizer = Polaris.Optimizers.adam(@learning_rate)
+      optimizer = Polaris.Optimizers.adam(learning_rate: @learning_rate)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -73,7 +77,7 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with custom options" do
-      optimizer = Polaris.Optimizers.adam(@learning_rate, b1: 0.95, b2: 0.99)
+      optimizer = Polaris.Optimizers.adam(learning_rate: @learning_rate, b1: 0.95, b2: 0.99)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -82,7 +86,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with schedule" do
-      optimizer = Polaris.Optimizers.adam(Polaris.Schedules.constant(@learning_rate))
+      optimizer =
+        Polaris.Optimizers.adam(learning_rate: Polaris.Schedules.constant(@learning_rate))
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -93,7 +99,7 @@ defmodule Polaris.OptimizersTest do
 
   describe "adamw" do
     test "correctly optimizes simple loss with default options" do
-      optimizer = Polaris.Optimizers.adamw(@learning_rate)
+      optimizer = Polaris.Optimizers.adamw(learning_rate: @learning_rate)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -102,7 +108,7 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with custom options" do
-      optimizer = Polaris.Optimizers.adamw(@learning_rate, decay: 0.9)
+      optimizer = Polaris.Optimizers.adamw(learning_rate: @learning_rate, decay: 0.9)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -111,7 +117,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with schedule" do
-      optimizer = Polaris.Optimizers.adamw(Polaris.Schedules.constant(@learning_rate))
+      optimizer =
+        Polaris.Optimizers.adamw(learning_rate: Polaris.Schedules.constant(@learning_rate))
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -122,7 +130,7 @@ defmodule Polaris.OptimizersTest do
 
   describe "lamb" do
     test "correctly optimizes simple loss with default options" do
-      optimizer = Polaris.Optimizers.lamb(@learning_rate)
+      optimizer = Polaris.Optimizers.lamb(learning_rate: @learning_rate)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor([1.0])}
@@ -131,7 +139,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with custom options" do
-      optimizer = Polaris.Optimizers.lamb(@learning_rate, decay: 0.9, min_norm: 0.1)
+      optimizer =
+        Polaris.Optimizers.lamb(learning_rate: @learning_rate, decay: 0.9, min_norm: 0.1)
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor([1.0])}
@@ -140,7 +150,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with schedule" do
-      optimizer = Polaris.Optimizers.lamb(Polaris.Schedules.constant(@learning_rate))
+      optimizer =
+        Polaris.Optimizers.lamb(learning_rate: Polaris.Schedules.constant(@learning_rate))
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor([1.0])}
@@ -151,7 +163,7 @@ defmodule Polaris.OptimizersTest do
 
   describe "noisy_sgd" do
     test "correctly optimizes simple loss with default options" do
-      optimizer = Polaris.Optimizers.noisy_sgd(@learning_rate)
+      optimizer = Polaris.Optimizers.noisy_sgd(learning_rate: @learning_rate)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor([1.0])}
@@ -160,7 +172,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with custom options" do
-      optimizer = Polaris.Optimizers.noisy_sgd(@learning_rate, eta: 0.2, gamma: 0.6)
+      optimizer =
+        Polaris.Optimizers.noisy_sgd(learning_rate: @learning_rate, eta: 0.2, gamma: 0.6)
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor([1.0])}
@@ -169,7 +183,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with schedule" do
-      optimizer = Polaris.Optimizers.noisy_sgd(Polaris.Schedules.constant(@learning_rate))
+      optimizer =
+        Polaris.Optimizers.noisy_sgd(learning_rate: Polaris.Schedules.constant(@learning_rate))
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -180,7 +196,7 @@ defmodule Polaris.OptimizersTest do
 
   describe "radam" do
     test "correctly optimizes simple loss with default options" do
-      optimizer = Polaris.Optimizers.radam(@learning_rate)
+      optimizer = Polaris.Optimizers.radam(learning_rate: @learning_rate)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor([1.0])}
@@ -189,7 +205,7 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with custom options" do
-      optimizer = Polaris.Optimizers.radam(@learning_rate, threshold: 2.0)
+      optimizer = Polaris.Optimizers.radam(learning_rate: @learning_rate, threshold: 2.0)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor([1.0])}
@@ -198,7 +214,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with schedule" do
-      optimizer = Polaris.Optimizers.radam(Polaris.Schedules.constant(@learning_rate))
+      optimizer =
+        Polaris.Optimizers.radam(learning_rate: Polaris.Schedules.constant(@learning_rate))
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -209,7 +227,7 @@ defmodule Polaris.OptimizersTest do
 
   describe "rmsprop" do
     test "correctly optimizes simple loss default case" do
-      optimizer = Polaris.Optimizers.rmsprop(@learning_rate)
+      optimizer = Polaris.Optimizers.rmsprop(learning_rate: @learning_rate)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor([1.0])}
@@ -219,7 +237,12 @@ defmodule Polaris.OptimizersTest do
 
     test "correctly optimizes simple loss centered case" do
       optimizer =
-        Polaris.Optimizers.rmsprop(@learning_rate, centered: true, initial_scale: 0.1, decay: 0.8)
+        Polaris.Optimizers.rmsprop(
+          learning_rate: @learning_rate,
+          centered: true,
+          initial_scale: 0.1,
+          decay: 0.8
+        )
 
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
@@ -229,7 +252,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss rms case" do
-      optimizer = Polaris.Optimizers.rmsprop(@learning_rate, initial_scale: 0.1, decay: 0.8)
+      optimizer =
+        Polaris.Optimizers.rmsprop(learning_rate: @learning_rate, initial_scale: 0.1, decay: 0.8)
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor([1.0])}
@@ -239,7 +264,12 @@ defmodule Polaris.OptimizersTest do
 
     test "correctly optimizes simple loss with momentum" do
       optimizer =
-        Polaris.Optimizers.rmsprop(@learning_rate, initial_scale: 0.1, decay: 0.8, momentum: 0.9)
+        Polaris.Optimizers.rmsprop(
+          learning_rate: @learning_rate,
+          initial_scale: 0.1,
+          decay: 0.8,
+          momentum: 0.9
+        )
 
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
@@ -249,7 +279,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with schedule" do
-      optimizer = Polaris.Optimizers.rmsprop(Polaris.Schedules.constant(@learning_rate))
+      optimizer =
+        Polaris.Optimizers.rmsprop(learning_rate: Polaris.Schedules.constant(@learning_rate))
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -260,7 +292,7 @@ defmodule Polaris.OptimizersTest do
 
   describe "sgd" do
     test "correctly optimizes simple loss with default options" do
-      optimizer = Polaris.Optimizers.sgd(@learning_rate)
+      optimizer = Polaris.Optimizers.sgd(learning_rate: @learning_rate)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor([1.0])}
@@ -269,7 +301,7 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with custom options" do
-      optimizer = Polaris.Optimizers.sgd(@learning_rate, momentum: 0.9)
+      optimizer = Polaris.Optimizers.sgd(learning_rate: @learning_rate, momentum: 0.9)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor([1.0])}
@@ -278,7 +310,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with schedule" do
-      optimizer = Polaris.Optimizers.sgd(Polaris.Schedules.constant(@learning_rate))
+      optimizer =
+        Polaris.Optimizers.sgd(learning_rate: Polaris.Schedules.constant(@learning_rate))
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}
@@ -289,7 +323,7 @@ defmodule Polaris.OptimizersTest do
 
   describe "yogi" do
     test "correctly optimizes simple loss with default options" do
-      optimizer = Polaris.Optimizers.yogi(@learning_rate)
+      optimizer = Polaris.Optimizers.yogi(learning_rate: @learning_rate)
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor([1.0])}
@@ -298,7 +332,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with custom options" do
-      optimizer = Polaris.Optimizers.yogi(@learning_rate, initial_accumulator_value: 0.1)
+      optimizer =
+        Polaris.Optimizers.yogi(learning_rate: @learning_rate, initial_accumulator_value: 0.1)
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor([1.0])}
@@ -307,7 +343,9 @@ defmodule Polaris.OptimizersTest do
     end
 
     test "correctly optimizes simple loss with schedule" do
-      optimizer = Polaris.Optimizers.yogi(Polaris.Schedules.constant(@learning_rate))
+      optimizer =
+        Polaris.Optimizers.yogi(learning_rate: Polaris.Schedules.constant(@learning_rate))
+
       loss_fn = fn %{"x0" => x} -> Nx.multiply(x, x) end
       num_steps = @iterations
       x0 = %{"x0" => Nx.tensor(1.0)}

@@ -20,10 +20,10 @@ defmodule Polaris.Updates do
   composed to create complex optimizers. For example, the Adam
   optimizer in `Polaris.Optimizers` is implemented as:
 
-      def adam(learning_rate, opts \\ []) do
+      def adam(opts \\ []) do
         opts
         |> Polaris.Updates.scale_by_adam()
-        |> Polaris.Updates.scale(-learning_rate)
+        |> Polaris.Updates.scale(-opts[:learning_rate])
       end
 
   Updates are maps of updates, often associated with parameters of
