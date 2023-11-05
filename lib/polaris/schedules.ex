@@ -44,11 +44,14 @@ defmodule Polaris.Schedules do
         steps: 1000
       )
 
-    if step < opts[:warmup] do
-      step / Nx.max(1, opts[:warmup])
-    else
-      Nx.max(0.0, (opts[:steps] - step) / Nx.max(1, opts[:steps] - opts[:warmup]))
-    end
+    scale =
+      if step < opts[:warmup] do
+        step / Nx.max(1, opts[:warmup])
+      else
+        Nx.max(0.0, (opts[:steps] - step) / Nx.max(1, opts[:steps] - opts[:warmup]))
+      end
+
+    scale * opts[:init_value]
   end
 
   @doc ~S"""
