@@ -43,7 +43,7 @@ defmodule Polaris.Updates do
         stateless(combinator, &apply_scale(&1, &2, step_size))
       end
 
-      defnp apply_scale(x, _params, step) do
+      defnp apply_scale(updates, _params, step) do
         deep_new(updates, fn x -> Nx.multiply(x, step) end)
       end
 
