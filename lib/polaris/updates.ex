@@ -1003,6 +1003,48 @@ defmodule Polaris.Updates do
     Map.merge(params, state, fn _, s1, s2 -> merge_inner(s1, s2) end)
   end
 
+  @doc """
+  Applies the GaLore algorithm to an optimizer for low-memory
+  training.
+  """
+  def galore({parent_init_fn, parent_apply_fn}, opts \\ []) do
+    init_fn = fn params ->
+      # on initialization, project down so we initialize parent
+      # state with low-rank version
+      {projected, ortho_matrix} = apply_galore_projection_down(params)
+      parent_init_fn.(projected)
+    end
+
+    apply_fn = fn updates, %{galore_matrix: ortho_matrix, state: state}, params ->
+      {projected, ortho_matrix} = apply_galore_projection_down(updates)
+      {scaled_updates, new_state} = parent_apply_fn.(projected)
+      updates = apply_galore_projection_up(scaled_updates, ortho_matrix)
+      {updates, new_state}
+    end
+  end
+
+  defnp apply_galore_projection_down(params, opts \\ []) do
+    opts = keyword!(opts, scale: 1.0)
+
+    ortho_matrix = deep_new(params, fn g ->
+      get_orthogonal_matrix(g)
+    end)
+
+    projected = deep_merge(params, ortho_matrix, fn g, ortho ->
+      Nx.dot(Nx.transpose(ortho_matrix), g)
+    end)
+
+    {projected, ortho_matrix}
+  end
+
+  defnp apply_galore_projection_down(params, ortho_matrix, opts \\ []) do
+    opts = keyword!(opts, scale: 1.0)
+
+    deep_merge(params, ortho_matrix, fn g, ortho ->
+      Nx.dot(ortho, g)
+    end)
+  end
+
   ## Helpers
 
   defnp update_moment(x, moment, decay, order) do
