@@ -1007,21 +1007,24 @@ defmodule Polaris.Updates do
   Applies the GaLore algorithm to an optimizer for low-memory
   training.
   """
-  def galore({parent_init_fn, parent_apply_fn}, opts \\ []) do
+  def galore({parent_init_fn, parent_apply_fn}, galore_params, opts \\ []) do
     opts = Keyword.validate!(opts, rank: 128, scale: 1.0)
 
     init_fn = fn params ->
       # on initialization, project down so we initialize parent
       # state with low-rank version
-      {projected, _ortho_matrix} = apply_galore_projection_down(params, opts)
-      parent_init_fn.(projected)
+      {galore, regular} = Map.split(params, galore_params)
+      {projected, _ortho_matrix} = apply_galore_projection_down(galore, opts)
+      parent_init_fn.(Map.merge(projected, regular))
     end
 
     apply_fn = fn updates, state, params ->
-      {projected, ortho_matrix} = apply_galore_projection_down(updates, opts)
-      {scaled_updates, new_state} = parent_apply_fn.(projected, state, params)
-      updates = apply_galore_projection_up(scaled_updates, ortho_matrix, opts)
-      {updates, new_state}
+      {galore, regular} = Map.split(updates, galore_params)
+      {projected, ortho_matrix} = apply_galore_projection_down(galore, opts)
+      {scaled_updates, new_state} = parent_apply_fn.(Map.merge(projected, regular), state, params)
+      {galore, regular} = Map.split(scaled_updates, galore_params)
+      galore_updates = apply_galore_projection_up(galore, ortho_matrix, opts)
+      {Map.merge(galore_updates, regular), new_state}
     end
 
     {init_fn, apply_fn}
