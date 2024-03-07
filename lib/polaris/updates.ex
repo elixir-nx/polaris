@@ -1008,41 +1008,54 @@ defmodule Polaris.Updates do
   training.
   """
   def galore({parent_init_fn, parent_apply_fn}, opts \\ []) do
+    opts = Keyword.validate!(opts, rank: 128, scale: 1.0)
+
     init_fn = fn params ->
       # on initialization, project down so we initialize parent
       # state with low-rank version
-      {projected, ortho_matrix} = apply_galore_projection_down(params)
+      {projected, _ortho_matrix} = apply_galore_projection_down(params, opts)
       parent_init_fn.(projected)
     end
 
-    apply_fn = fn updates, %{galore_matrix: ortho_matrix, state: state}, params ->
-      {projected, ortho_matrix} = apply_galore_projection_down(updates)
-      {scaled_updates, new_state} = parent_apply_fn.(projected)
-      updates = apply_galore_projection_up(scaled_updates, ortho_matrix)
+    apply_fn = fn updates, state, params ->
+      {projected, ortho_matrix} = apply_galore_projection_down(updates, opts)
+      {scaled_updates, new_state} = parent_apply_fn.(projected, state, params)
+      updates = apply_galore_projection_up(scaled_updates, ortho_matrix, opts)
       {updates, new_state}
     end
+
+    {init_fn, apply_fn}
   end
 
   defnp apply_galore_projection_down(params, opts \\ []) do
-    opts = keyword!(opts, scale: 1.0)
+    opts = keyword!(opts, rank: 128, scale: 1.0)
 
-    ortho_matrix = deep_new(params, fn g ->
-      get_orthogonal_matrix(g)
-    end)
+    ortho_matrix =
+      deep_new(params, fn g ->
+        get_orthogonal_matrix(g, rank: opts[:rank])
+      end)
 
-    projected = deep_merge(params, ortho_matrix, fn g, ortho ->
-      Nx.dot(Nx.transpose(ortho_matrix), g)
-    end)
+    projected =
+      deep_merge(params, ortho_matrix, fn g, ortho ->
+        Nx.dot(g, Nx.transpose(ortho))
+      end)
 
     {projected, ortho_matrix}
   end
 
-  defnp apply_galore_projection_down(params, ortho_matrix, opts \\ []) do
+  defnp apply_galore_projection_up(params, ortho_matrix, opts \\ []) do
     opts = keyword!(opts, scale: 1.0)
 
     deep_merge(params, ortho_matrix, fn g, ortho ->
-      Nx.dot(ortho, g)
+      opts[:scale] * Nx.dot(g, ortho)
     end)
+  end
+
+  defnp get_orthogonal_matrix(g, opts \\ []) do
+    opts = keyword!(opts, rank: 128)
+
+    {_u, _s, vh} = Nx.LinAlg.svd(g)
+    vh[[0..opts[:rank], ..]]
   end
 
   ## Helpers
