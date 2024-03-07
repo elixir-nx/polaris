@@ -1044,7 +1044,7 @@ defmodule Polaris.Updates do
   end
 
   defnp apply_galore_projection_up(params, ortho_matrix, opts \\ []) do
-    opts = keyword!(opts, scale: 1.0)
+    opts = keyword!(opts, rank: 128, scale: 1.0)
 
     deep_merge(params, ortho_matrix, fn g, ortho ->
       opts[:scale] * Nx.dot(g, ortho)
