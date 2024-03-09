@@ -1057,7 +1057,7 @@ defmodule Polaris.Updates do
   defnp get_orthogonal_matrix(g, opts \\ []) do
     opts = keyword!(opts, rank: 128)
 
-    {_u, _s, vh} = Nx.LinAlg.svd(g)
+    {_u, _s, vh} = Nx.LinAlg.svd(g, full_matrices?: false)
     vh[[0..opts[:rank], ..]]
   end
 
