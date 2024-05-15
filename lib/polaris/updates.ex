@@ -904,6 +904,66 @@ defmodule Polaris.Updates do
   end
 
   @doc """
+  Accumulate gradients and only apply updates every N steps.
+  """
+  def accumulate_gradients({parent_init_fn, parent_apply_fn} \\ identity(), steps)
+      when is_integer(steps) do
+    # We can't implement this one as stateful really because
+    # we don't want to run the updates at all nor change the optimizer
+    # state aside from this one
+    init_fn = fn params ->
+      state = parent_init_fn.(params)
+      Tuple.insert_at(state, 0, init_accumulate_gradients(params))
+    end
+
+    apply_fn = fn updates, state, params ->
+      this_state = elem(state, 0)
+      other_state = Tuple.delete_at(state, 0)
+
+      apply_accumulate_gradients(updates, this_state, params, other_state, parent_apply_fn,
+        steps: steps
+      )
+    end
+
+    {init_fn, apply_fn}
+  end
+
+  defnp init_accumulate_gradients(params) do
+    %{gradient_state: zeros_like(params), step: Nx.tensor(0)}
+  end
+
+  defnp apply_accumulate_gradients(
+          updates,
+          %{gradient_state: gradient_state, step: step},
+          params,
+          parent_state,
+          parent_apply_fn,
+          opts \\ []
+        ) do
+    opts = keyword!(opts, [:steps])
+
+    max_steps = opts[:steps]
+
+    if Nx.greater_equal(step, max_steps) do
+      updates = deep_new(updates, &Nx.divide(&1, step))
+      {updates, new_parent_state} = parent_apply_fn.(updates, parent_state, params)
+      new_this_state = %{gradient_state: zeros_like(params), step: Nx.tensor(0)}
+      {updates, tuple_insert_at(new_parent_state, 0, new_this_state)}
+    else
+      new_this_state = %{
+        gradient_state: deep_merge(updates, gradient_state, &Nx.add/2),
+        step: Nx.add(step, 1)
+      }
+
+      {zeros_like(updates), tuple_insert_at(parent_state, 0, new_this_state)}
+    end
+  end
+
+  deftransformp tuple_insert_at(tuple, index, element) do
+    Tuple.insert_at(tuple, index, element)
+  end
+
+  @doc """
   Returns the identity update.
 
   This is often as the initial update in many functions in this module.
