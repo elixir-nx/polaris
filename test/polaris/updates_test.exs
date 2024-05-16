@@ -2240,4 +2240,54 @@ defmodule Polaris.UpdatesTest do
       assert_all_close(actual_next_trace_e, expected_next_trace_e)
     end
   end
+
+  describe "accumulate_gradients" do
+    test "returns 0 updates, accumulated state, no updated parent state" do
+      assert {init_fn, update_fn} = trace(nesterov: true) |> accumulate_gradients(2)
+      params = %{a: Nx.tensor([1.0, 2.0])}
+
+      updates = %{a: Nx.tensor([1.0, 1.0])}
+
+      {%{gradient_state: %{a: init_gradient_state}}, %{trace: init_trace}} =
+        state = init_fn.(params)
+
+      assert_all_close(init_gradient_state, Nx.tensor([0.0, 0.0]))
+
+      # accumulate once
+      assert {new_updates, new_state} = update_fn.(updates, state, params)
+      assert %{a: a_updates_1} = new_updates
+
+      assert {%{step: step, gradient_state: %{a: gradient_state}}, %{trace: new_trace}} =
+               new_state
+
+      assert_all_close(a_updates_1, Nx.tensor([0.0, 0.0]))
+      assert_all_close(step, Nx.tensor(1))
+      assert_all_close(gradient_state, Nx.tensor([1.0, 1.0]))
+      assert_all_close(init_trace.a, new_trace.a)
+
+      # accumulate twice
+      assert {new_updates, new_state} = update_fn.(updates, new_state, params)
+      assert %{a: a_updates_2} = new_updates
+
+      assert {%{step: step, gradient_state: %{a: gradient_state}}, %{trace: new_trace}} =
+               new_state
+
+      assert_all_close(a_updates_2, Nx.tensor([0.0, 0.0]))
+      assert_all_close(step, Nx.tensor(2))
+      assert_all_close(gradient_state, Nx.tensor([2.0, 2.0]))
+      assert_all_close(init_trace.a, new_trace.a)
+
+      # now update
+      assert {new_updates, new_state} = update_fn.(updates, new_state, params)
+      assert %{a: a_updates_3} = new_updates
+
+      assert {%{step: step, gradient_state: %{a: gradient_state}}, %{trace: new_trace}} =
+               new_state
+
+      assert_all_close(a_updates_3, Nx.tensor([0.95, 0.95]))
+      assert_all_close(step, Nx.tensor(0))
+      assert_all_close(gradient_state, Nx.tensor([0.0, 0.0]))
+      assert_all_close(new_trace.a, Nx.tensor([0.5, 0.5]))
+    end
+  end
 end
