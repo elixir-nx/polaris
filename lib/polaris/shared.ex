@@ -46,9 +46,7 @@ defmodule Polaris.Shared do
         merged
 
       {_merged, _leftover} ->
-        raise ArgumentError,
-              "unable to merge arguments with incompatible" <>
-                " structure"
+        raise ArgumentError, "unable to merge arguments with incompatible structure"
     end
   end
 

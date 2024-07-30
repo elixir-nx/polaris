@@ -1,4 +1,4 @@
-defmodule Axon.SchedulesTest do
+defmodule Polaris.SchedulesTest do
   use Polaris.Case
   doctest Polaris.Schedules
 
