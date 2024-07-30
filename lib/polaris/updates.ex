@@ -74,7 +74,7 @@ defmodule Polaris.Updates do
   your state should look something like:
 
       %{
-        mu: %{kernel: kernel_mu}
+        mu: %{kernel: kernel_mu},
         nu: %{kernel: kernel_nu}
       }
   """
