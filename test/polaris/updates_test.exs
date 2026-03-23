@@ -2290,4 +2290,45 @@ defmodule Polaris.UpdatesTest do
       assert_all_close(new_trace.a, Nx.tensor([0.5, 0.5]))
     end
   end
+
+  describe "apply_updates" do
+    test "applies updates without state (2-arg default)" do
+      params = %{a: Nx.tensor([1.0, 2.0, 3.0])}
+      updates = %{a: Nx.tensor([0.1, 0.2, 0.3])}
+
+      result = apply_updates(params, updates)
+
+      assert_all_close(result.a, Nx.tensor([1.1, 2.2, 3.3]))
+    end
+
+    test "applies updates with explicit empty state" do
+      params = %{a: Nx.tensor([1.0, 2.0, 3.0])}
+      updates = %{a: Nx.tensor([0.1, 0.2, 0.3])}
+
+      result = apply_updates(params, updates, %{})
+
+      assert_all_close(result.a, Nx.tensor([1.1, 2.2, 3.3]))
+    end
+
+    test "applies updates with state map" do
+      params = %{a: Nx.tensor([1.0, 2.0, 3.0])}
+      updates = %{a: Nx.tensor([0.1, 0.2, 0.3])}
+      state = %{b: Nx.tensor([9.0])}
+
+      result = apply_updates(params, updates, state)
+
+      assert_all_close(result.a, Nx.tensor([1.1, 2.2, 3.3]))
+      assert_all_close(result.b, Nx.tensor([9.0]))
+    end
+
+    test "applies updates with nested containers" do
+      params = %{layer: %{w: Nx.tensor([1.0, 2.0]), b: Nx.tensor([0.0])}}
+      updates = %{layer: %{w: Nx.tensor([0.1, 0.2]), b: Nx.tensor([0.5])}}
+
+      result = apply_updates(params, updates)
+
+      assert_all_close(result.layer.w, Nx.tensor([1.1, 2.2]))
+      assert_all_close(result.layer.b, Nx.tensor([0.5]))
+    end
+  end
 end
