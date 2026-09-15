@@ -35,7 +35,7 @@ defmodule Polaris.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nx, "~> 0.5"},
+      {:nx, "~> 0.5 or ~> 1.0"},
       {:ex_doc, "~> 0.29", only: [:docs]}
     ]
   end
