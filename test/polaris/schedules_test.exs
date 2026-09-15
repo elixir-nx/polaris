@@ -119,6 +119,71 @@ defmodule Polaris.SchedulesTest do
     end
   end
 
+  describe "one_cycle" do
+    test "returns arity-1 function with defaults" do
+      fun = one_cycle(1.0e-1, total_steps: 100)
+      assert is_function(fun, 1)
+    end
+
+    test "returns arity-1 function with options" do
+      fun = one_cycle(1.0e-1, total_steps: 100, pct_start: 0.25, three_phase: true)
+      assert is_function(fun, 1)
+    end
+
+    test "requires total_steps" do
+      assert_raise KeyError, fn -> one_cycle(1.0e-1) end
+    end
+
+    test "can be called as anonymous function" do
+      fun = one_cycle(1.0e-1, total_steps: 100)
+      assert_all_close(fun.(0), 0.004)
+      assert_all_close(fun.(29), 0.1)
+    end
+
+    test "can be called within JIT" do
+      fun = one_cycle(1.0e-1, total_steps: 100)
+      assert_all_close(apply(jit(fun), [0]), 0.004)
+      assert_all_close(apply(jit(fun), [29]), 0.1)
+    end
+
+    test "matches PyTorch OneCycleLR values with cosine annealing" do
+      fun = one_cycle(1.0e-1, total_steps: 100)
+
+      assert_all_close(fun.(0), 0.004)
+      assert_all_close(fun.(15), 0.0545986676)
+      assert_all_close(fun.(29), 0.1)
+      assert_all_close(fun.(50), 0.0793893451)
+      assert_all_close(fun.(99), 4.0e-7)
+    end
+
+    test "matches PyTorch OneCycleLR values with linear annealing" do
+      fun = one_cycle(1.0e-1, total_steps: 100, anneal: :linear)
+
+      assert_all_close(fun.(0), 0.004)
+      assert_all_close(fun.(15), 0.0536551724)
+      assert_all_close(fun.(29), 0.1)
+      assert_all_close(fun.(50), 0.07000012)
+      assert_all_close(fun.(99), 4.0e-7)
+    end
+
+    test "matches PyTorch OneCycleLR values with three phases" do
+      fun =
+        one_cycle(1.0e-1,
+          total_steps: 100,
+          three_phase: true,
+          div_factor: 10.0,
+          final_div_factor: 10.0
+        )
+
+      assert_all_close(fun.(0), 0.01)
+      assert_all_close(fun.(29), 0.1)
+      assert_all_close(fun.(45), 0.0477198102)
+      assert_all_close(fun.(58), 0.01)
+      assert_all_close(fun.(80), 0.00498392459)
+      assert_all_close(fun.(99), 0.001)
+    end
+  end
+
   describe "constant" do
     test "returns arity-1 function with defaults" do
       fun = constant(1.0e-2)

@@ -152,6 +152,141 @@ defmodule Polaris.Schedules do
   end
 
   @doc ~S"""
+  One-cycle schedule.
+
+  Anneals from an initial value up to `peak_value` over the first
+  `pct_start` fraction of `total_steps`, then back down to a minimum
+  for the rest of training:
+
+  $$\gamma_{init} = rac{\gamma_{peak}}{d}, \quad \gamma_{min} = rac{\gamma_{init}}{d_{final}}$$
+
+  Each phase interpolates between its start and end value, with a
+  cosine by default or linearly with `anneal: :linear`. With
+  `three_phase: true` the middle phase anneals back to the initial
+  value first and a third phase anneals from there to the minimum,
+  which is how NeuralProphet and other Lightning based libraries
+  run it.
+
+  Matches `torch.optim.lr_scheduler.OneCycleLR`, including its defaults
+  and phase boundaries, so learning rate recipes ported from PyTorch
+  behave the same.
+
+  ## Options
+
+    * `:total_steps` - total number of steps in the cycle. Required
+
+    * `:pct_start` - fraction of the cycle spent increasing the value.
+      Defaults to `0.3`
+
+    * `:anneal` - `:cos` or `:linear`. Defaults to `:cos`
+
+    * `:div_factor` - $d$ in above formulation, `peak_value / initial_value`.
+      Defaults to `25.0`
+
+    * `:final_div_factor` - $d_{final}$ in above formulation,
+      `initial_value / min_value`. Defaults to `1.0e4`
+
+    * `:three_phase` - anneal back to the initial value before decaying
+      to the minimum. Defaults to `false`
+
+  ## References
+
+    * [Super-Convergence: Very Fast Training of Neural Networks Using Large Learning Rates](https://arxiv.org/abs/1708.07120)
+
+  """
+  def one_cycle(peak_value, opts \\ []) do
+    total_steps = Keyword.fetch!(opts, :total_steps)
+    pct_start = Keyword.get(opts, :pct_start, 0.3)
+    div_factor = Keyword.get(opts, :div_factor, 25.0)
+    final_div_factor = Keyword.get(opts, :final_div_factor, 1.0e4)
+    three_phase = Keyword.get(opts, :three_phase, false)
+    anneal = Keyword.get(opts, :anneal, :cos)
+
+    initial_value = peak_value / div_factor
+    min_value = initial_value / final_div_factor
+
+    # Phase boundaries follow PyTorch's OneCycleLR exactly
+    phase_1_end = pct_start * total_steps - 1
+    phase_2_end = if three_phase, do: 2 * pct_start * total_steps - 2, else: total_steps - 1
+    phase_2_target = if three_phase, do: initial_value, else: min_value
+
+    &apply_one_cycle(&1,
+      peak_value: peak_value,
+      initial_value: initial_value,
+      min_value: min_value,
+      phase_1_end: phase_1_end,
+      phase_2_end: phase_2_end,
+      phase_2_target: phase_2_target,
+      total_end: total_steps - 1,
+      three_phase: three_phase,
+      anneal: anneal
+    )
+  end
+
+  defnp apply_one_cycle(step, opts \\ []) do
+    opts =
+      keyword!(opts, [
+        :peak_value,
+        :initial_value,
+        :min_value,
+        :phase_1_end,
+        :phase_2_end,
+        :phase_2_target,
+        :total_end,
+        :three_phase,
+        :anneal
+      ])
+
+    step = Nx.as_type(step, :f32)
+
+    phase_1 =
+      anneal(opts[:initial_value], opts[:peak_value], step / opts[:phase_1_end], opts[:anneal])
+
+    phase_2 =
+      anneal(
+        opts[:peak_value],
+        opts[:phase_2_target],
+        (step - opts[:phase_1_end]) / (opts[:phase_2_end] - opts[:phase_1_end]),
+        opts[:anneal]
+      )
+
+    phase_3 =
+      anneal(
+        opts[:initial_value],
+        opts[:min_value],
+        (step - opts[:phase_2_end]) / (opts[:total_end] - opts[:phase_2_end]),
+        opts[:anneal]
+      )
+
+    if opts[:three_phase] do
+      Nx.select(
+        step <= opts[:phase_1_end],
+        phase_1,
+        Nx.select(step <= opts[:phase_2_end], phase_2, phase_3)
+      )
+    else
+      Nx.select(step <= opts[:phase_1_end], phase_1, phase_2)
+    end
+  end
+
+  deftransformp anneal(start, finish, pct, anneal) do
+    case anneal do
+      :cos -> cosine_anneal(start, finish, pct)
+      :linear -> linear_anneal(start, finish, pct)
+    end
+  end
+
+  defnp cosine_anneal(start, finish, pct) do
+    pct = Nx.clip(pct, 0.0, 1.0)
+    finish + (start - finish) / 2 * (Nx.cos(Nx.Constants.pi() * pct) + 1)
+  end
+
+  defnp linear_anneal(start, finish, pct) do
+    pct = Nx.clip(pct, 0.0, 1.0)
+    (finish - start) * pct + start
+  end
+
+  @doc ~S"""
   Constant schedule.
 
   $$\gamma(t) = \gamma_0$$
