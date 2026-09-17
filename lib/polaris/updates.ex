@@ -717,6 +717,42 @@ defmodule Polaris.Updates do
   end
 
   @doc """
+  Adds the gradient of an L1 penalty to updates.
+
+  Each update gets `lambda * sign(param)`, the subgradient of
+  `lambda * sum(abs(params))`, which pulls parameters toward zero
+  at a constant rate and drives the small ones to exactly zero.
+  Where `add_decayed_weights/2` is L2 regularization through the
+  optimizer, this is L1.
+
+  ## Options
+
+      * `:lambda` - Strength of the penalty. Defaults to `0.0`.
+  """
+  def add_l1_penalty(combinator_or_opts \\ [])
+
+  def add_l1_penalty(opts) when is_list(opts) do
+    add_l1_penalty(identity(), opts)
+  end
+
+  def add_l1_penalty({init_fn, apply_fn} = combinator)
+      when is_function(init_fn, 1) and is_function(apply_fn, 3) do
+    add_l1_penalty(combinator, [])
+  end
+
+  def add_l1_penalty({init_fn, apply_fn} = combinator, opts)
+      when is_function(init_fn, 1) and is_function(apply_fn, 3) and is_list(opts) do
+    stateless(combinator, fn updates, params ->
+      opts = Nx.Defn.Kernel.keyword!(opts, lambda: 0.0)
+      apply_l1_penalty(updates, params, opts[:lambda])
+    end)
+  end
+
+  defnp apply_l1_penalty(updates, params, lambda) do
+    deep_merge(updates, params, fn g, p -> g + lambda * Nx.sign(p) end)
+  end
+
+  @doc """
   Scale by trust ratio.
 
   ## Options
