@@ -2,24 +2,24 @@ defmodule Polaris.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/elixir-nx/polaris"
-  @version "0.1.0"
+  @version "0.2.0"
 
   def project do
     [
       app: :polaris,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
       description: "Optimizers for the Nx ecosystem",
       docs: docs(),
-      package: package(),
-      preferred_cli_env: [
-        docs: :docs,
-        "hex.publish": :docs
-      ]
+      package: package()
     ]
+  end
+
+  def cli do
+    [preferred_envs: [docs: :docs, "hex.publish": :docs]]
   end
 
   defp elixirc_paths(:test), do: ~w(lib test/support)
