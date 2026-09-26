@@ -117,6 +117,33 @@ defmodule Polaris.UpdatesTest do
     end
   end
 
+  describe "add_l1_penalty" do
+    test "constructs a stateless transformation" do
+      params = %{a: Nx.tensor([1.0, 2.0, 3.0])}
+      assert {init_fn, update_fn} = add_l1_penalty()
+      assert is_function(init_fn, 1)
+      assert is_function(update_fn, 3)
+      assert init_fn.(params) == {}
+    end
+
+    test "adds lambda times the sign of each parameter to its update" do
+      params = %{a: Nx.tensor([-2.0, 0.0, 3.0])}
+      updates = %{a: Nx.tensor([1.0, 1.0, 1.0])}
+      assert {_init_fn, update_fn} = add_l1_penalty(lambda: 0.5)
+      assert {new_updates, {}} = update_fn.(updates, {}, params)
+      assert_equal(new_updates.a, Nx.tensor([0.5, 1.0, 1.5]))
+    end
+
+    test "composes with stateful transformation" do
+      params = %{a: Nx.tensor([1.0, 2.0, 3.0])}
+      assert {init_fn, update_fn} = scale_by_adam() |> add_l1_penalty(lambda: 0.1)
+      assert is_function(init_fn, 1)
+      assert is_function(update_fn, 3)
+      assert {adam_state} = init_fn.(params)
+      assert %{mu: %{a: _}, nu: %{a: _}, count: _} = adam_state
+    end
+  end
+
   describe "add_noise" do
     test "constructs a stateful transformation" do
       params = %{a: Nx.tensor([1.0, 2.0, 3.0])}
