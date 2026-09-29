@@ -1036,7 +1036,7 @@ defmodule Polaris.Updates do
   Applies updates to params and updates state parameters with
   given state map.
   """
-  defn apply_updates(params, updates, state \\ nil) do
+  defn apply_updates(params, updates, state \\ %{}) do
     new_params =
       deep_merge(params, updates, fn x, u ->
         Nx.add(x, Nx.as_type(u, Nx.type(x)))
@@ -1048,6 +1048,9 @@ defmodule Polaris.Updates do
   deftransformp merge_state(params, state) do
     case {params, state} do
       {params, nil} ->
+        params
+
+      {params, state} when state == %{} ->
         params
 
       {params, state} ->
