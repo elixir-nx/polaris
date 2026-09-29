@@ -119,6 +119,61 @@ defmodule Polaris.SchedulesTest do
     end
   end
 
+  describe "warmup_cosine_decay" do
+    test "returns arity-1 function with required options" do
+      fun = warmup_cosine_decay(1.0e-2, warmup_steps: 5, decay_steps: 10)
+      assert is_function(fun, 1)
+    end
+
+    test "returns arity-1 function with additional options" do
+      fun = warmup_cosine_decay(1.0e-3, warmup_steps: 5, decay_steps: 10, alpha: 0.1)
+      assert is_function(fun, 1)
+    end
+
+    test "can be called as anonymous function" do
+      fun = warmup_cosine_decay(1.0e-2, warmup_steps: 5, decay_steps: 10)
+      assert_all_close(fun.(0), 0.0)
+      assert_all_close(fun.(5), 1.0e-2)
+    end
+
+    test "can be called within JIT" do
+      fun = warmup_cosine_decay(1.0e-2, warmup_steps: 5, decay_steps: 10)
+      assert_all_close(apply(jit(fun), [0]), 0.0)
+      assert_all_close(apply(jit(fun), [5]), 1.0e-2)
+    end
+
+    test "warmup phase increases linearly to peak value" do
+      fun = warmup_cosine_decay(1.0e-2, warmup_steps: 5, decay_steps: 10)
+      assert_all_close(fun.(0), 0.0)
+      assert_all_close(fun.(2), 0.4 * 1.0e-2)
+      assert_all_close(fun.(4), 0.8 * 1.0e-2)
+      assert_all_close(fun.(5), 1.0e-2)
+    end
+
+    test "cosine decay phase follows cosine decay schedule after warmup" do
+      fun = warmup_cosine_decay(1.0e-2, warmup_steps: 5, decay_steps: 10, alpha: 0.0)
+      assert_all_close(fun.(5), 1.0e-2)
+      assert_all_close(fun.(10), 0.5 * 1.0e-2)
+      assert_all_close(fun.(15), 0.0)
+    end
+
+    test "cosine decay phase respects alpha value" do
+      fun = warmup_cosine_decay(1.0e-2, warmup_steps: 5, decay_steps: 10, alpha: 0.5)
+      assert_all_close(fun.(5), 1.0e-2)
+      assert_all_close(fun.(10), 0.75 * 1.0e-2)
+      assert_all_close(fun.(15), 0.5 * 1.0e-2)
+    end
+
+    test "matches expected values at different step counts" do
+      fun = warmup_cosine_decay(1.0e-3, warmup_steps: 5, decay_steps: 10, alpha: 0.0)
+
+      assert_all_close(fun.(0), 0.0)
+      assert_all_close(fun.(5), 0.001)
+      assert_all_close(fun.(10), 0.0005)
+      assert_all_close(fun.(15), 0.0)
+    end
+  end
+
   describe "constant" do
     test "returns arity-1 function with defaults" do
       fun = constant(1.0e-2)
